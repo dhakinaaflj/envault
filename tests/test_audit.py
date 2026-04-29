@@ -79,3 +79,14 @@ def test_record_event_with_extra(tmp_project):
     assert entry["source"] == "bundle.enc"
     saved = read_log(tmp_project)
     assert saved[0]["source"] == "bundle.enc"
+
+
+def test_record_event_timestamp_is_iso_format(tmp_project):
+    """Verify that recorded timestamps are valid ISO 8601 strings."""
+    from datetime import datetime
+
+    entry = record_event("set", key="API_KEY", project_dir=tmp_project)
+    timestamp = entry["timestamp"]
+    # Should not raise if the timestamp is a valid ISO 8601 datetime string
+    parsed = datetime.fromisoformat(timestamp)
+    assert parsed is not None
