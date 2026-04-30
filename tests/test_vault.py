@@ -55,3 +55,19 @@ def test_overwrite_existing_vault(tmp_path):
     save_vault(path, updated, PASSWORD)
     loaded = load_vault(path, PASSWORD)
     assert loaded == updated
+
+
+def test_save_and_load_empty_dict(tmp_path):
+    """Verify that an empty dict can be saved and loaded without data loss."""
+    path = tmp_path / ".envault"
+    save_vault(path, {}, PASSWORD)
+    loaded = load_vault(path, PASSWORD)
+    assert loaded == {}
+
+
+def test_load_corrupted_file_raises(tmp_path):
+    """Verify that a corrupted (non-empty, invalid) vault file raises ValueError."""
+    path = tmp_path / ".envault"
+    path.write_bytes(b"this is not valid encrypted data")
+    with pytest.raises(ValueError):
+        load_vault(path, PASSWORD)
