@@ -9,6 +9,7 @@ from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
 SALT_SIZE = 16
 NONCE_SIZE = 12
 KEY_SIZE = 32
+MIN_PAYLOAD_SIZE = SALT_SIZE + NONCE_SIZE
 
 
 def derive_key(password: str, salt: bytes) -> bytes:
@@ -35,8 +36,11 @@ def decrypt(token: str, password: str) -> str:
     except Exception as exc:
         raise ValueError("Invalid token format.") from exc
 
-    if len(payload) < SALT_SIZE + NONCE_SIZE:
-        raise ValueError("Token is too short to be valid.")
+    if len(payload) < MIN_PAYLOAD_SIZE:
+        raise ValueError(
+            f"Token is too short to be valid (got {len(payload)} bytes, "
+            f"expected at least {MIN_PAYLOAD_SIZE})."
+        )
 
     salt = payload[:SALT_SIZE]
     nonce = payload[SALT_SIZE:SALT_SIZE + NONCE_SIZE]
